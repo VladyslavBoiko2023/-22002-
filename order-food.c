@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Структура, що представляє інформацію про замовлення
 typedef struct {
     int orderId;
     char itemName[100];
@@ -10,7 +9,6 @@ typedef struct {
     int quantity;
 } Order;
 
-// Структура, що представляє інформацію про користувача
 typedef struct {
     int userId;
     char username[100];
@@ -18,7 +16,7 @@ typedef struct {
     int orderCount;
 } User;
 
-// Функція для створення нового користувача
+// Створення нового користувача з заданим ідентифікатором та ім'ям користувача
 User createNewUser(int userId, const char* username) {
     User newUser;
     newUser.userId = userId;
@@ -27,7 +25,7 @@ User createNewUser(int userId, const char* username) {
     return newUser;
 }
 
-// Функція для додавання замовлення для користувача
+// Додавання нового замовлення для користувача
 void addOrder(User* user, const char* itemName, float price, int quantity) {
     Order newOrder;
     newOrder.orderId = user->orderCount + 1;
@@ -39,7 +37,7 @@ void addOrder(User* user, const char* itemName, float price, int quantity) {
     user->orderCount++;
 }
 
-// Функція для відображення історії замовлень користувача та розрахунку сумарної ціни
+// Виведення історії замовлень користувача
 void displayOrderHistory(const User* user) {
     printf("Order History for User: %s\n", user->username);
 
@@ -64,24 +62,28 @@ void displayOrderHistory(const User* user) {
     printf("Total Cost: $%.2f\n", totalCost);
 }
 
+typedef struct {
+    const char* name;
+    float price;
+} MenuItem;
+
+// Вибір пункту меню з заданою категорією
+void selectMenuItem(const char* category, const MenuItem* items, int itemCount, User* user);
+
 int main() {
     int userId;
     char username[100];
     int choice;
-    int foodIndex;
     int quantity;
 
     printf("Enter User ID: ");
     scanf("%d", &userId);
+    getchar(); // Видалення символу нового рядка, залишеного scanf
     printf("Enter Username: ");
-    scanf("%s", username);
+    fgets(username, sizeof(username), stdin);
+    username[strcspn(username, "\n")] = '\0'; // // Видалення символу нового рядка з вводу
 
     User user = createNewUser(userId, username);
-
-    typedef struct {
-        const char* name;
-        float price;
-    } MenuItem;
 
     const MenuItem mainCourseItems[] = {
         {"Steak", 15.99},
@@ -124,71 +126,19 @@ int main() {
         printf("5. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
-		
-		switch (choice) {
+
+        switch (choice) {
             case 1:
-                printf("\nMain Course Items:\n");
-                for (int i = 0; i < sizeof(mainCourseItems) / sizeof(mainCourseItems[0]); i++) {
-                    printf("%d. %s - $%.2f\n", i + 1, mainCourseItems[i].name, mainCourseItems[i].price);
-                }
-                printf("Enter item number: ");
-                scanf("%d", &foodIndex);
-                foodIndex--;  // Зменшення на 1 для відповідності індексу масиву
-                if (foodIndex >= 0 && foodIndex < sizeof(mainCourseItems) / sizeof(mainCourseItems[0])) {
-                    printf("Enter quantity: ");
-                    scanf("%d", &quantity);
-                    addOrder(&user, mainCourseItems[foodIndex].name, mainCourseItems[foodIndex].price, quantity);
-                } else {
-                    printf("Invalid item number. Try again.\n");
-                }
+                selectMenuItem("Main Course", mainCourseItems, sizeof(mainCourseItems) / sizeof(mainCourseItems[0]), &user);
                 break;
             case 2:
-                printf("\nSalad Items:\n");
-                for (int i = 0; i < sizeof(saladItems) / sizeof(saladItems[0]); i++) {
-                    printf("%d. %s - $%.2f\n", i + 1, saladItems[i].name, saladItems[i].price);
-                }
-                printf("Enter item number: ");
-                scanf("%d", &foodIndex);
-                foodIndex--;  // Зменшення на 1 для відповідності індексу масиву
-                if (foodIndex >= 0 && foodIndex < sizeof(saladItems) / sizeof(saladItems[0])) {
-                    printf("Enter quantity: ");
-                    scanf("%d", &quantity);
-                    addOrder(&user, saladItems[foodIndex].name, saladItems[foodIndex].price, quantity);
-                } else {
-                    printf("Invalid item number. Try again.\n");
-                }
+                selectMenuItem("Salads", saladItems, sizeof(saladItems) / sizeof(saladItems[0]), &user);
                 break;
             case 3:
-                printf("\nFast Food Items:\n");
-                for (int i = 0; i < sizeof(fastFoodItems) / sizeof(fastFoodItems[0]); i++) {
-                    printf("%d. %s - $%.2f\n", i + 1, fastFoodItems[i].name, fastFoodItems[i].price);
-                }
-                printf("Enter item number: ");
-                scanf("%d", &foodIndex);
-                foodIndex--;  // Зменшення на 1 для відповідності індексу масиву
-                if (foodIndex >= 0 && foodIndex < sizeof(fastFoodItems) / sizeof(fastFoodItems[0])) {
-                    printf("Enter quantity: ");
-                    scanf("%d", &quantity);
-                    addOrder(&user, fastFoodItems[foodIndex].name, fastFoodItems[foodIndex].price, quantity);
-                } else {
-                    printf("Invalid item number. Try again.\n");
-                }
+                selectMenuItem("Fast Food", fastFoodItems, sizeof(fastFoodItems) / sizeof(fastFoodItems[0]), &user);
                 break;
             case 4:
-                printf("\nAppetizer Items:\n");
-                for (int i = 0; i < sizeof(appetizerItems) / sizeof(appetizerItems[0]); i++) {
-                    printf("%d. %s - $%.2f\n", i + 1, appetizerItems[i].name, appetizerItems[i].price);
-                }
-                printf("Enter item number: ");
-                scanf("%d", &foodIndex);
-                foodIndex--;  // Зменшення на 1 для відповідності індексу масиву
-                if (foodIndex >= 0 && foodIndex < sizeof(appetizerItems) / sizeof(appetizerItems[0])) {
-                    printf("Enter quantity: ");
-                    scanf("%d", &quantity);
-                    addOrder(&user, appetizerItems[foodIndex].name, appetizerItems[foodIndex].price, quantity);
-                } else {
-                    printf("Invalid item number. Try again.\n");
-                }
+                selectMenuItem("Appetizers", appetizerItems, sizeof(appetizerItems) / sizeof(appetizerItems[0]), &user);
                 break;
             case 5:
                 printf("Exiting...\n");
@@ -202,4 +152,33 @@ int main() {
     displayOrderHistory(&user);
 
     return 0;
+}
+
+void selectMenuItem(const char* category, const MenuItem* items, int itemCount, User* user) {
+    printf("\n%s Items:\n", category);
+    for (int i = 0; i < itemCount; i++) {
+        printf("%d. %s - $%.2f\n", i + 1, items[i].name, items[i].price);
+    }
+
+    int foodIndex;
+    printf("Enter item number (or 0 to go back): ");
+    scanf("%d", &foodIndex);
+    getchar(); // Видалення символу нового рядка, залишеного scanf
+
+    if (foodIndex == 0) {
+        printf("Going back to the main menu...\n");
+        return;
+    }
+
+    foodIndex--;
+
+    if (foodIndex >= 0 && foodIndex < itemCount) {
+        printf("Enter quantity: ");
+        char quantityInput[10];
+        fgets(quantityInput, sizeof(quantityInput), stdin);
+        int quantity = atoi(quantityInput);
+        addOrder(user, items[foodIndex].name, items[foodIndex].price, quantity);
+    } else {
+        printf("Invalid item number. Try again.\n");
+    }
 }
